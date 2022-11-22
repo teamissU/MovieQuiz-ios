@@ -40,7 +40,7 @@ final class MovieQuizViewController: UIViewController {
     private let questions: [QuizQuestion] = [
         QuizQuestion(
             image: "The Godfather",
-            text : "Рейтинг этого фильма больше чем 6",
+            text : "Рейтинг этого фильма больше чем 6?",
             correctAnswer : true),
         QuizQuestion(
                     image: "The Dark Knight",
@@ -116,8 +116,8 @@ final class MovieQuizViewController: UIViewController {
         }
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
+        imageView.layer.cornerRadius = 6
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.showNextQuestionOrResults()
         }
@@ -130,8 +130,10 @@ final class MovieQuizViewController: UIViewController {
                     text: text,
                     buttonText: "Сыграть ещё раз")
             show(quiz: viewModel)
+            imageView.layer.borderWidth = 0
         } else {
             currentQuestionIndex += 1
+            imageView.layer.borderWidth = -1
             let nextQuestion = questions[currentQuestionIndex]
             let ViewModel = convert(model: nextQuestion)
             self.show(quiz: ViewModel)

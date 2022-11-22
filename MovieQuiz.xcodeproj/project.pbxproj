@@ -16,6 +16,8 @@
 		AD5EE5DE284D7887003966EF /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD5EE5DD284D7887003966EF /* UIColor+Extensions.swift */; };
 		AD77F5742857F8810062FB14 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD77F5732857F8810062FB14 /* Date+Extensions.swift */; };
 		AD7AFA552836189F00399704 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7AFA542836189F00399704 /* Array+Extensions.swift */; };
+		F0A8C3A0292D5742008934BD /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F0A8C39E2922B239008934BD /* YS Display-Bold.ttf */; };
+		F0A8C3A1292D5745008934BD /* YS Display-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F0A8C39D2922B239008934BD /* YS Display-Medium.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,8 +59,7 @@
 		8F4738332848DE46005DF65E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				F0A8C39E2922B239008934BD /* YS Display-Bold.ttf */,
-				F0A8C39D2922B239008934BD /* YS Display-Medium.ttf */,
+				F0A8C39F292D571D008934BD /* MovieQuizFonts */,
 				AD1ABABC2831907F00B3E448 /* LaunchScreen.storyboard */,
 				AD1ABABA2831907F00B3E448 /* Assets.xcassets */,
 				AD1ABABF2831907F00B3E448 /* Info.plist */,
@@ -118,6 +119,15 @@
 				AD77F5732857F8810062FB14 /* Date+Extensions.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		F0A8C39F292D571D008934BD /* MovieQuizFonts */ = {
+			isa = PBXGroup;
+			children = (
+				F0A8C39E2922B239008934BD /* YS Display-Bold.ttf */,
+				F0A8C39D2922B239008934BD /* YS Display-Medium.ttf */,
+			);
+			path = MovieQuizFonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -183,6 +193,8 @@
 				AD1ABABE2831907F00B3E448 /* LaunchScreen.storyboard in Resources */,
 				AD1ABABB2831907F00B3E448 /* Assets.xcassets in Resources */,
 				AD1ABAB92831907B00B3E448 /* Main.storyboard in Resources */,
+				F0A8C3A0292D5742008934BD /* YS Display-Bold.ttf in Resources */,
+				F0A8C3A1292D5745008934BD /* YS Display-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
