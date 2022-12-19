@@ -1,8 +1,26 @@
 import Foundation
+import UIKit
 
-struct AlertModel {
-    var countCurrentAnswer: Int = 0
+struct AlertModel: AlertPresenterProtocol {
+    func requestAlertPresenter(_ alert: AlertModel) {
+        let alertController = UIAlertController(
+                title: alert.title,
+                message: alert.textResult,
+                preferredStyle: .alert)
+            
+        let action = UIAlertAction(title: alert.buttonText, style: .default, handler: { _ in
+        })
+        alertController.addAction(action)
+        let model = AlertModel()
+        
+    }
+    
+    
+    static var countCurrentAnswer: Int = 0
     let textResult: String = "Ваш результат \(countCurrentAnswer) из 10!"
     let title: String = "Этот раун окончен!"
     let buttonText: String = "Сыграть еще раз"
+    
 }
+
+

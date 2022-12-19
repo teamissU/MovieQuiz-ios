@@ -1,13 +1,16 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+    
+    
+
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var imageView: UIImageView!
     
     private var currentQuestionIndex: Int = 0
     private var correctAnswers: Int = 0
-    
+    private let model = AlertModel()
     private let questionsAmount: Int = 10
     private lazy var questionFactory: QuestionFactory = {
         let questionFactory = QuestionFactory()
@@ -23,7 +26,105 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory.delegate = self
         
         questionFactory.requestNextQuestion()
-        
+        //print(NSHomeDirectory())
+        //UserDefaults.standard.set(true, forKey: "viewDidLoad")
+        //print(Bundle.main.bundlePath)
+        var documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileName = "text.swift"
+        documentsURL.appendPathComponent(fileName)
+        if !FileManager.default.fileExists(atPath: documentsURL.path) {
+            let hello = "Hello world!"
+            let data = hello.data(using: .utf8)
+            FileManager.default.createFile(atPath: documentsURL.path, contents: data)
+        }
+        print(documentsURL)
+        enum FileManagerError: Error {
+            case fileDoesntExist
+        }
+        func string(from documentsURL: URL) throws -> String {
+            if !FileManager.default.fileExists(atPath: documentsURL.path) {
+                throw FileManagerError.fileDoesntExist
+            }
+            return try String(contentsOf: documentsURL)
+        }
+        let inceptionPath = documentsURL.appendingPathComponent("inception.json")
+        let jsonString = try? String(contentsOf: inceptionPath)
+        struct Actor: Codable {
+            let id: String
+            let image: String
+            let name: String
+            let asCharacter: String
+        }
+        struct Movie: Codable {
+          let id: String
+          let rank: String
+          let title: String
+          let fullTitle: String
+          let year: String
+          let image: String
+          let crew: String
+          let imDbRating: String
+          let imDbRatingCount: String
+        }
+        struct Top: Decodable {
+            let items: [Movie]
+        }
+        func jsonObject(with data: Data, options opt: JSONSerialization.ReadingOptions = []) throws -> Any {
+            let result = try? JSONDecoder().decode(Top.self, from: data)
+            let data = jsonString!.data(using: .utf8)!
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+
+                  guard let json = json,
+                        let id = json["id"] as? String,
+                        let rank = json["rank"] as? String,
+                        let title = json["title"] as? String,
+                        let fullTitle = json["fullTitle"] as? String,
+                        let crew = json["crew"] as? String,
+                        let imDbRating = json["imDbRating"] as? String,
+                        let imDbRatingCount = json["imDbRatingCount"] as? String,
+                        let year = json["year"] as? String,
+                        let image = json["image"] as? String,
+                        let releaseDate = json["releaseDate"] as? String,
+                        let runtimeMins = json["runtimeMins"] as? String,
+                        let directors = json["directors"] as? String,
+                        let actorList = json["actorList"] as? [Any] else {
+                    return
+                }
+
+                var actors: [Actor] = []
+
+                for actor in actorList {
+                    guard let actor = actor as? [String: Any],
+                            let id = actor["id"] as? String,
+                            let image = actor["image"] as? String,
+                            let name = actor["name"] as? String,
+                            let asCharacter = actor["asCharacter"] as? String else {
+                        return
+                    }
+                    let mainActor = Actor(id: id,
+                                            image: image,
+                                            name: name,
+                                            asCharacter: asCharacter)
+                    actors.append(mainActor)
+                }
+                let movie = Movie(id: id,
+                                  rank: rank,
+                                    title: title,
+                                  fullTitle: fullTitle,
+                                  crew: crew,
+                                  imDbRating: imDbRating,
+                                  imDbRatingCount: imDbRatingCount,
+                                    year: year,
+                                    image: image,
+                                    releaseDate: releaseDate,
+                                    runtimeMins: runtimeMins,
+                                    directors: directors,
+                                    actorList: actors)
+            } catch {
+                print("Failed to parse: \(String(describing: jsonString))")
+            }
+        }
         }
     
     // MARK: - QuestionFactoryDelegate
@@ -95,7 +196,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questionsAmount - 1 {
-            show(quiz: AlertModel)
+            show(quiz: model)
             imageView.layer.borderWidth = 0
         } else {
             currentQuestionIndex += 1
@@ -103,13 +204,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             questionFactory.requestNextQuestion()
         }
     }
-    func didReceiveAlert(alert: AlertModel) {
-            let alert = UIAlertController(
-                title: alert.title,
-                message: alert.textResult,
-                preferredStyle: .alert)
-            
-        }
+    func didRecieveAlert(alert: AlertModel) {
+        let alert = UIAlertController(
+            title: alert.title,
+            message: alert.textResult,
+            preferredStyle: .alert)
+    }
+    
 }
 
 
