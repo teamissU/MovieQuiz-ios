@@ -40,6 +40,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         print(documentsURL)
         enum FileManagerError: Error {
             case fileDoesntExist
+            case parsingFailure
         }
         func string(from documentsURL: URL) throws -> String {
             if !FileManager.default.fileExists(atPath: documentsURL.path) {
@@ -89,7 +90,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                         let runtimeMins = json["runtimeMins"] as? String,
                         let directors = json["directors"] as? String,
                         let actorList = json["actorList"] as? [Any] else {
-                    return
+                      throw FileManagerError.parsingFailure
                 }
 
                 var actors: [Actor] = []
@@ -100,7 +101,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                             let image = actor["image"] as? String,
                             let name = actor["name"] as? String,
                             let asCharacter = actor["asCharacter"] as? String else {
-                        return
+                        throw FileManagerError.parsingFailure
                     }
                     let mainActor = Actor(id: id,
                                             image: image,
@@ -108,22 +109,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                             asCharacter: asCharacter)
                     actors.append(mainActor)
                 }
-                let movie = Movie(id: id,
-                                  rank: rank,
-                                    title: title,
-                                  fullTitle: fullTitle,
-                                  crew: crew,
-                                  imDbRating: imDbRating,
-                                  imDbRatingCount: imDbRatingCount,
-                                    year: year,
-                                    image: image,
-                                    releaseDate: releaseDate,
-                                    runtimeMins: runtimeMins,
-                                    directors: directors,
-                                    actorList: actors)
+                let movie1 = Movie(id: id,
+                                   rank: rank,
+                                   title: title,
+                                   fullTitle: fullTitle,
+                                   year: year,
+                                   image: image,
+                                   crew: crew,
+                                   imDbRating: imDbRating,
+                                   imDbRatingCount: imDbRatingCount)
             } catch {
                 print("Failed to parse: \(String(describing: jsonString))")
             }
+            throw FileManagerError.parsingFailure
         }
         }
     
