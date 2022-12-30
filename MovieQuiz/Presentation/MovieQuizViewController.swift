@@ -19,6 +19,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     }()
     private var currentQuestion: QuizQuestion? //текущий вопрос, который видит пользователь.
     private var alertModel: AlertPresenterProtocol?
+    private var statisticService: StatisticService?
     // MARK: LifeStyle
     
     override func viewDidLoad() {
@@ -26,6 +27,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         questionFactory.delegate = self
         
         questionFactory.requestNextQuestion()
+        statisticService = StatisticServiceImplementation()
         //print(NSHomeDirectory())
         //UserDefaults.standard.set(true, forKey: "viewDidLoad")
         //print(Bundle.main.bundlePath)
@@ -71,7 +73,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
             let items: [Movie]
         }
         func jsonObject(with data: Data, options opt: JSONSerialization.ReadingOptions = []) throws -> Any {
-            let result = try? JSONDecoder().decode(Top.self, from: data)
+            _ = try? JSONDecoder().decode(Top.self, from: data)
             let data = jsonString!.data(using: .utf8)!
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
@@ -86,9 +88,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                         let imDbRatingCount = json["imDbRatingCount"] as? String,
                         let year = json["year"] as? String,
                         let image = json["image"] as? String,
-                        let releaseDate = json["releaseDate"] as? String,
-                        let runtimeMins = json["runtimeMins"] as? String,
-                        let directors = json["directors"] as? String,
+                        //let releaseDate = json["releaseDate"] as? String,
+                        //let runtimeMins = json["runtimeMins"] as? String,
+                        //let directors = json["directors"] as? String,
                         let actorList = json["actorList"] as? [Any] else {
                       throw FileManagerError.parsingFailure
                 }
@@ -109,7 +111,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                                             asCharacter: asCharacter)
                     actors.append(mainActor)
                 }
-                let movie1 = Movie(id: id,
+                _ = Movie(id: id,
                                    rank: rank,
                                    title: title,
                                    fullTitle: fullTitle,
@@ -122,6 +124,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
                 print("Failed to parse: \(String(describing: jsonString))")
             }
             throw FileManagerError.parsingFailure
+            
         }
         }
     
@@ -164,11 +167,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
-    private func show(quiz result: AlertModel) {
+    private func show(quiz result: QuizResultsViewModel) {
             imageView.layer.cornerRadius = 20
             let alert = UIAlertController(
                 title: result.title,
-                message: result.textResult,
+                message: result.text,
                 preferredStyle: .alert)
             let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
                 guard let self = self else { return }
@@ -193,17 +196,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
     }
     private func showNextQuestionOrResults() {
-        if currentQuestionIndex == questionsAmount - 1 {
-            show(quiz: model)
+            imageView.layer.masksToBounds = true
             imageView.layer.borderWidth = 0
-        } else {
-            currentQuestionIndex += 1
-            imageView.layer.borderWidth = -1
-            questionFactory.requestNextQuestion()
-        }
+
+            if currentQuestionIndex == questionsAmount - 1 {
+
+                statisticService?.store(correct: correctAnswers, total: questionsAmount)
+                guard let gamesCount = statisticService?.gamesCount else {return}
+                guard let bestGame = statisticService?.bestGame else {return}
+                guard let totalAccuracy = statisticService?.totalAccuracy else {return}
+
+                let viewModel = QuizResultsViewModel(
+                    title: "Этот раунд окончен!",
+                    text: "Ваш результат: \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(bestGame.correct)/\(bestGame.total) \(bestGame.date.dateTimeString) \nСредняя точность: \(String(format: "%.2f", totalAccuracy))%",
+                    buttonText: "Сыграть еще раз")
+                show(quiz: viewModel)
+            } else {
+                currentQuestionIndex += 1
+                questionFactory.requestNextQuestion()
+            }
     }
     func didRecieveAlert(alert: AlertModel) {
-        let alert = UIAlertController(
+        _ = UIAlertController(
             title: alert.title,
             message: alert.textResult,
             preferredStyle: .alert)

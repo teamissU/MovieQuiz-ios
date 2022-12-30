@@ -11,7 +11,7 @@ struct AlertModel: AlertPresenterProtocol {
         let action = UIAlertAction(title: alert.buttonText, style: .default, handler: { _ in
         })
         alertController.addAction(action)
-        let model = AlertModel()
+        _ = AlertModel()
         
     }
     
