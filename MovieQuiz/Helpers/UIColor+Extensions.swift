@@ -1,4 +1,6 @@
-import Foundation
 import UIKit
 
-extension UIColor { }
+extension UIColor {
+    static let ypRed = UIColor(named: "ypRed") ?? .red
+    static let ypGreen = UIColor(named: "ypGreen") ?? .green
+}
