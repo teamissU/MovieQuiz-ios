@@ -1,25 +1,27 @@
-import Foundation
+
 import UIKit
 
+protocol AlertPresenterProtocol {
+    func requestAlertPresenter()
+}
+
 struct AlertModel: AlertPresenterProtocol {
-    func requestAlertPresenter(_ alert: AlertModel) {
+    var delegate: AlertPresenterDelegate?
+    var alertAction: ((UIAlertAction) -> ())?
+
+    let textResult: String
+    let title: String
+    let buttonText: String
+    func requestAlertPresenter() {
         let alertController = UIAlertController(
-                title: alert.title,
-                message: alert.textResult,
+                title: title,
+                message: textResult,
                 preferredStyle: .alert)
             
-        let action = UIAlertAction(title: alert.buttonText, style: .default, handler: { _ in
-        })
+        let action = UIAlertAction(title: buttonText, style: .default, handler: alertAction)
         alertController.addAction(action)
-        _ = AlertModel()
-        
+        delegate?.didRecieveAlert(alert: alertController)
     }
-    
-    
-    static var countCurrentAnswer: Int = 0
-    let textResult: String = "Ваш результат \(countCurrentAnswer) из 10!"
-    let title: String = "Этот раун окончен!"
-    let buttonText: String = "Сыграть еще раз"
     
 }
 

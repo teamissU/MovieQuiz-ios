@@ -44,12 +44,20 @@ class QuestionFactory: QuestionFactoryProtocol {
                     text: "Рейтинг этого фильма больше чем 6?",
                     correctAnswer: false)
     ]
+    private lazy var questionsCopy = questions
+    func getQuestionsCount () -> Int {
+        return questions.count
+    }
     func requestNextQuestion() {
-        guard let index = (0..<questions.count).randomElement() else {  // 2
+        guard let index = (0..<questionsCopy.count).randomElement() else {  // 2
              return
         }
         
-        let question = questions[safe: index]
+        let question = questionsCopy[safe: index]
+        questionsCopy.remove(at: index)
         delegate?.didRecieveNextQuestion(question: question)
+    }
+    func restart () {
+        questionsCopy = questions
     }
 }
