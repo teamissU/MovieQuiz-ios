@@ -1,19 +1,22 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, AlertPresenterDelegate {
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        <#code#>
+    }
     
     
-
+    
+    
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var imageView: UIImageView!
-    
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     private var currentQuestionIndex: Int = 0
     private var correctAnswers: Int = 0
     private lazy var questionsAmount: Int = questionFactory.getQuestionsCount()
     private lazy var questionFactory: QuestionFactory = {
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
+        let questionFactory = QuestionFactory(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?)
         return questionFactory
     }()
     private var currentQuestion: QuizQuestion? //текущий вопрос, который видит пользователь.
@@ -22,19 +25,43 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
     // MARK: LifeStyle
     
     override func viewDidLoad() {
-        imageView.layer.masksToBounds = true
-        imageView.layer.cornerRadius = 20
         super.viewDidLoad()
-        questionFactory.requestNextQuestion()
+        
+        imageView.layer.cornerRadius = 20
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         statisticService = StatisticServiceImplementation()
-        }
+        
+        showLoadingIndicator()
+        questionFactory.loadData()
+    }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
+    }
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(textResult: message, title: "Ошибка", buttonText: "Попробовать еще раз")
+        
+        self.currentQuestionIndex = 0
+        self.correctAnswers = 0
+        
+        self.questionFactory.requestNextQuestion()
+    }
+    
+    
     
     // MARK: - QuestionFactoryDelegate
     
     func didRecieveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
-                return
-            }
+            return
+        }
         
         currentQuestion = question
         let viewModel = convert(model: question)
@@ -57,9 +84,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         let givenAnswer = true
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
-    func convert(model: QuizQuestion) -> QuizStepViewModel {
+    private func convert(model: QuizQuestion) -> QuizStepViewModel {
         return QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
+            image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
@@ -78,7 +105,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         model.alertAction = {_ in
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
-            self.questionFactory.restart()
+            //self.questionFactory.restart()
             self.questionFactory.requestNextQuestion()
         }
         model.requestAlertPresenter()
@@ -95,25 +122,32 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate, 
         }
     }
     private func showNextQuestionOrResults() {
-            imageView.layer.borderWidth = 0
-
-            if currentQuestionIndex == questionsAmount - 1 {
-                show()
-            } else {
-                currentQuestionIndex += 1
-                questionFactory.requestNextQuestion()
-            }
+        imageView.layer.borderWidth = 0
+        
+        if currentQuestionIndex == questionsAmount - 1 {
+            show()
+        } else {
+            currentQuestionIndex += 1
+            questionFactory.requestNextQuestion()
+        }
     }
     func didRecieveAlert(alert: UIAlertController) {
         present(alert, animated: true)
     }
-    
-}
-private extension MovieQuizViewController {
-    enum FileManagerError: Error {
-        case fileDoesntExist
-        case parsingFailure
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory.requestNextQuestion()
+        
     }
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    //private extension MovieQuizViewController {
+    //    enum FileManagerError: Error {
+    //        case fileDoesntExist
+    //        case parsingFailure
+    //    }
+    //}
 }
 
 

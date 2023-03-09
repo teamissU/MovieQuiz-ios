@@ -25,6 +25,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="1hp-UO-nz2">
+                                <rect key="frame" x="20" y="438" width="374" height="20"/>
+                            </activityIndicatorView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="Liq-Q6-x2T">
                                 <rect key="frame" x="20" y="58" width="374" height="804"/>
                                 <subviews>
@@ -138,12 +141,15 @@
                         <color key="backgroundColor" name="YP black"/>
                         <constraints>
                             <constraint firstItem="Liq-Q6-x2T" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="F6u-Ja-tDm"/>
+                            <constraint firstItem="1hp-UO-nz2" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="V4I-I7-HB1"/>
+                            <constraint firstItem="1hp-UO-nz2" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="gev-Q2-co9"/>
                             <constraint firstItem="Liq-Q6-x2T" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="kFD-HH-MPg"/>
                             <constraint firstItem="Liq-Q6-x2T" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="nXR-4m-ubr"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="Liq-Q6-x2T" secondAttribute="trailing" constant="20" id="rb2-e8-oP8"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="gev-Q2-co9" id="9Tm-ee-a2m"/>
                         <outlet property="counterLabel" destination="tpi-gX-DZw" id="jC1-y0-mG6"/>
                         <outlet property="imageView" destination="5Oi-wP-8tj" id="iMo-gJ-4uc"/>
                         <outlet property="textLabel" destination="9qU-3N-KKM" id="EG9-nK-fwd"/>
@@ -156,7 +162,7 @@
     </scenes>
     <resources>
         <namedColor name="YP black">
-            <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.10199999809265137" green="0.10599999874830246" blue="0.13300000131130219" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
