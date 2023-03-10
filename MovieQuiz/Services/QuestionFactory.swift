@@ -2,6 +2,7 @@ import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
     private let moviesLoader: MoviesLoading
+    private var movies: [MostPopularMovie] = []
         private var delegate: QuestionFactoryDelegate?
 
         init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
@@ -51,7 +52,6 @@ class QuestionFactory: QuestionFactoryProtocol {
     //                correctAnswer: false)
     //]
     
-    private var movies: [MostPopularMovie] = []
     
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
@@ -100,6 +100,9 @@ class QuestionFactory: QuestionFactoryProtocol {
                 self.delegate?.didReceiveNextQuestion(question: question)
             }
         }
+    }
+    func getQuestionsCount () -> Int {
+        movies.count
     }
    //func restart () {
    //    questionsCopy = questions
