@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
+final class MovieQuizViewController: UIViewController {
     
     
     @IBOutlet private var counterLabel: UILabel!
@@ -12,9 +12,8 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     private lazy var questionsAmount: Int = questionFactory.getQuestionsCount()
     private lazy var questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
     private var currentQuestion: QuizQuestion?
-    private var alertModel: AlertPresenterProtocol?
+    private var alert: AlertPresenterProtocol?
     private var statisticService: StatisticService?
-    
     // MARK: LifeStyle
     
     override func viewDidLoad() {
@@ -22,9 +21,13 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
         setupView()
         imageView.layer.cornerRadius = 20
         statisticService = StatisticServiceImplementation()
-        
-        showLoadingIndicator()
+        alert = AlertPresenter(delegate: self)
+        activityIndicator.hidesWhenStopped = true
         questionFactory.loadData()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        activityIndicator.startAnimating()
     }
     private func setupView() {
             imageView.addSubview(activityIndicator)
@@ -34,26 +37,6 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
                 activityIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
             ])
         }
-    private func showLoadingIndicator() {
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-    }
-    private func hideLoadingIndicator() {
-        activityIndicator.isHidden = true
-        activityIndicator.stopAnimating()
-    }
-    private func showNetworkError(message: String) {
-        hideLoadingIndicator()
-        
-        let model = AlertModel(textResult: message, title: "Ошибка", buttonText: "Попробовать еще раз")
-        model.requestAlertPresenter()
-        self.currentQuestionIndex = 0
-        self.correctAnswers = 0
-        
-        self.questionFactory.requestNextQuestion()
-    }
-    
-    
     
     // MARK: - QuestionFactoryDelegate
     
@@ -86,18 +69,24 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
     }
     private func show() {
         statisticService?.store(correct: correctAnswers, total: questionsAmount)
-        guard let gamesCount = statisticService?.gamesCount else {return}
-        guard let bestGame = statisticService?.bestGame else {return}
-        guard let totalAccuracy = statisticService?.totalAccuracy else {return}
-        var model = AlertModel(textResult: "Ваш результат: \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(bestGame.correct)/\(bestGame.total) \(bestGame.date.dateTimeString) \nСредняя точность: \(String(format: "%.2f", totalAccuracy))%", title: "Этот раунд окончен!", buttonText: "Сыграть еще раз")
-        model.delegate = self
-        model.alertAction = {_ in
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            //self.questionFactory.restart()
-            self.questionFactory.requestNextQuestion()
-        }
-        model.requestAlertPresenter()
+        guard let gamesCount = statisticService?.gamesCount else { return }
+        guard let bestGame = statisticService?.bestGame else { return }
+        guard let totalAccuracy = statisticService?.totalAccuracy else { return }
+        let textResult = "Ваш результат: \(correctAnswers)/\(questionsAmount)\nКоличество сыгранных квизов: \(gamesCount)\nРекорд: \(bestGame.correct)/\(bestGame.total) \(bestGame.date.dateTimeString) \nСредняя точность: \(String(format: "%.2f", totalAccuracy))%"
+        let model = AlertModel(
+            textResult: textResult,
+            title: "Этот раунд окончен!",
+            buttonText: "Сыграть еще раз", alertAction: { [weak self] in
+                guard let self = self else { return }
+                self.requestNextQuestion()
+            })
+        alert?.requestAlertPresenter(model)
+    }
+    private func requestNextQuestion () {
+        activityIndicator.startAnimating()
+        self.currentQuestionIndex = 0
+        self.correctAnswers = 0
+        self.questionFactory.requestNextQuestion()
     }
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
@@ -120,37 +109,43 @@ final class MovieQuizViewController: UIViewController, AlertPresenterDelegate {
             questionFactory.requestNextQuestion()
         }
     }
-    func didRecieveAlert(alert: UIAlertController) {
-        present(alert, animated: true)
-    }
-    
-    //private extension MovieQuizViewController {
-    //    enum FileManagerError: Error {
-    //        case fileDoesntExist
-    //        case parsingFailure
-    //    }
-    //}
 }
 extension MovieQuizViewController: QuestionFactoryDelegate {
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-            
-        }
-        
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-            self?.hideLoadingIndicator()
+    
+    func didReceiveNextQuestion(question: Result<QuizQuestion, MovieError>) {
+        switch question {
+        case .success(let quizQuestion):
+            currentQuestion = quizQuestion
+            let viewModel = convert(model: quizQuestion)
+            DispatchQueue.main.async { [weak self] in
+                self?.show(quiz: viewModel)
+                self?.activityIndicator.stopAnimating()
+            }
+        case .failure(let error):
+            didFailToLoadData(with: error)
         }
     }
+    
     func didLoadDataFromServer() {
         questionFactory.requestNextQuestion()
-        
     }
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
+    
+    func didFailToLoadData(with error: MovieError) {
+        activityIndicator.stopAnimating()
+        let model = AlertModel(
+            textResult: error.description,
+            title: "Ошибка",
+            buttonText: "Попробовать еще раз", alertAction: { [weak self] in
+                guard let self = self else { return }
+                self.requestNextQuestion()
+            })
+        alert?.requestAlertPresenter(model)
+    }
+}
+
+extension MovieQuizViewController: AlertPresenterDelegate {
+    func didRecieveAlert(alert: UIAlertController) {
+        present(alert, animated: true)
     }
 }
 
