@@ -1,6 +1,7 @@
 import Foundation
 
 class QuestionFactory: QuestionFactoryProtocol {
+    
     private let moviesLoader: MoviesLoading
     private var movies: [MostPopularMovie] = []
         private var delegate: QuestionFactoryDelegate?
@@ -20,7 +21,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                         let errorText = mostPopularMovies.errorMessage.isEmpty ? "Нет фильмов" : mostPopularMovies.errorMessage
                         self.delegate?.didFailToLoadData(with: .net(desc: errorText))
                     } else {
-                        self.movies = mostPopularMovies.items
+                        self.movies = Array(mostPopularMovies.items[...9])
                         self.delegate?.didLoadDataFromServer()
                     }
                 case .failure(let error):
@@ -64,7 +65,7 @@ class QuestionFactory: QuestionFactoryProtocol {
     }
     
     func getQuestionsCount () -> Int {
-        movies.count
+        return movies.count
     }
 }
 
