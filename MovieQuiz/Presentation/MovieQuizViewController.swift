@@ -19,14 +19,14 @@ final class MovieQuizViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        imageView.layer.cornerRadius = 20
         statisticService = StatisticServiceImplementation()
         alert = AlertPresenter(delegate: self)
-        activityIndicator.hidesWhenStopped = true
         questionFactory.loadData()
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        imageView.layer.cornerRadius = 20
+        activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
     }
     private func setupView() {
