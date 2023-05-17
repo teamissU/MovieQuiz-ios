@@ -22,7 +22,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                         let errorText = mostPopularMovies.errorMessage.isEmpty ? "Нет фильмов" : mostPopularMovies.errorMessage
                         self.delegate?.didFailToLoadData(with: .net(desc: errorText))
                     } else {
-                        self.movies = Array(mostPopularMovies.items[...9])
+                        self.movies = mostPopularMovies.items
                         self.delegate?.didLoadDataFromServer()
                     }
                 case .failure(let error):
