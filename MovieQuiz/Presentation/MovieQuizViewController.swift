@@ -137,7 +137,12 @@ extension MovieQuizViewController: QuestionFactoryDelegate {
             title: "Ошибка",
             buttonText: "Попробовать еще раз", alertAction: { [weak self] in
                 guard let self = self else { return }
-                self.requestNextQuestion()
+                switch error {
+                case .badUrl: self.requestNextQuestion()
+                case .badMovieIndex: self.questionFactory.loadData()
+                case .noSelf: self.questionFactory.loadData()
+                case .net: self.questionFactory.loadData()
+                }
             })
         alert?.requestAlertPresenter(model)
     }

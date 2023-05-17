@@ -35,14 +35,14 @@ class QuestionFactory: QuestionFactoryProtocol {
         DispatchQueue.global().async { [weak self] in
             guard let self = self else {
                 DispatchQueue.main.async {
-                    self?.delegate?.didReceiveNextQuestion(question: .failure(.nextQuestion(desc: "no self")))
+                    self?.delegate?.didReceiveNextQuestion(question: .failure(.noSelf))
                 }
                 return
             }
             let index = (0..<self.movies.count).randomElement() ?? 0
             guard let movie = self.movies[safe: index] else {
                 DispatchQueue.main.async {
-                    self.delegate?.didReceiveNextQuestion(question: .failure(.nextQuestion(desc: "bad movie index")))
+                    self.delegate?.didReceiveNextQuestion(question: .failure(.badMovieIndex))
                 }
                 return
             }
@@ -62,7 +62,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                }
             } catch {
                 DispatchQueue.main.async {
-                    self.delegate?.didReceiveNextQuestion(question: .failure(.nextQuestion(desc: error.localizedDescription)))
+                    self.delegate?.didReceiveNextQuestion(question: .failure(.badUrl))
                 }
             }
         }
