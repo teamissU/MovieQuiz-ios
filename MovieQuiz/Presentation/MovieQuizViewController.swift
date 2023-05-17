@@ -30,13 +30,13 @@ final class MovieQuizViewController: UIViewController {
         activityIndicator.startAnimating()
     }
     private func setupView() {
-            imageView.addSubview(activityIndicator)
-            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                activityIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
-                activityIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
-            ])
-        }
+        imageView.addSubview(activityIndicator)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: imageView.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: imageView.centerYAnchor)
+        ])
+    }
     
     // MARK: - QuestionFactoryDelegate
     
@@ -84,9 +84,9 @@ final class MovieQuizViewController: UIViewController {
     }
     private func requestNextQuestion () {
         activityIndicator.startAnimating()
-        self.currentQuestionIndex = 0
-        self.correctAnswers = 0
-        self.questionFactory.requestNextQuestion()
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory.requestNextQuestion()
     }
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {

@@ -4,6 +4,7 @@ class QuestionFactory: QuestionFactoryProtocol {
     
     private let moviesLoader: MoviesLoading
     private var movies: [MostPopularMovie] = []
+    private let moviesAmount: Int = 10
         private var delegate: QuestionFactoryDelegate?
 
         init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
@@ -69,7 +70,7 @@ class QuestionFactory: QuestionFactoryProtocol {
     }
     
     func getQuestionsCount () -> Int {
-        return movies.count
+        moviesAmount
     }
 }
 
