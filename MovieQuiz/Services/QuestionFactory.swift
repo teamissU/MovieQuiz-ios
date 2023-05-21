@@ -4,12 +4,12 @@ class QuestionFactory: QuestionFactoryProtocol {
     
     private let moviesLoader: MoviesLoading
     private var movies: [MostPopularMovie] = []
-        private var delegate: QuestionFactoryDelegate?
+    private var delegate: QuestionFactoryDelegate?
 
-        init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
-            self.moviesLoader = moviesLoader
-            self.delegate = delegate
-        }
+    init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
+        self.moviesLoader = moviesLoader
+        self.delegate = delegate
+    }
     
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
@@ -21,7 +21,7 @@ class QuestionFactory: QuestionFactoryProtocol {
                         let errorText = mostPopularMovies.errorMessage.isEmpty ? "Нет фильмов" : mostPopularMovies.errorMessage
                         self.delegate?.didFailToLoadData(with: .net(desc: errorText))
                     } else {
-                        self.movies = Array(mostPopularMovies.items[...9])
+                        self.movies = mostPopularMovies.items
                         self.delegate?.didLoadDataFromServer()
                     }
                 case .failure(let error):
@@ -64,9 +64,6 @@ class QuestionFactory: QuestionFactoryProtocol {
         }
     }
     
-    func getQuestionsCount () -> Int {
-        return movies.count
-    }
 }
 
 //private let questions: [QuizQuestion] = [

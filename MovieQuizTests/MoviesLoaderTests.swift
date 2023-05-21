@@ -10,6 +10,10 @@ import XCTest
 
 class MoviesLoaderTests: XCTestCase {
     struct StubNetworkClient: NetworkRouting {
+        func fetch(url: URL, handler: @escaping (Result<Data, MovieQuiz.MovieError>) -> Void) {
+            <#code#>
+        }
+        
         
         enum TestError: Error {
         case test
