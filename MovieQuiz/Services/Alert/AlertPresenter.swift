@@ -7,7 +7,7 @@ struct AlertPresenter: AlertPresenterProtocol {
                 title: alert.title,
                 message: alert.textResult,
                 preferredStyle: .alert)
-
+        alertController.view.accessibilityIdentifier = "Game results"
         let action = UIAlertAction(title: alert.buttonText, style: .default, handler: { _ in
             alert.alertAction?()
         })

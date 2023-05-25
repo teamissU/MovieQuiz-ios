@@ -1,13 +1,13 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
     
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var textLabel: UILabel!
-    @IBOutlet var imageView: UIImageView!
-    lazy var activityIndicator = UIActivityIndicatorView ()
-    var alert: AlertPresenterProtocol?
+    @IBOutlet private var imageView: UIImageView!
+    private lazy var activityIndicator = UIActivityIndicatorView ()
+    private var alert: AlertPresenterProtocol?
     private let presenter = MovieQuizPresenter()
     // MARK: LifeStyle
     
@@ -44,7 +44,7 @@ final class MovieQuizViewController: UIViewController {
         presenter.yesNoButtonClicked(givenAnswer: true)
     }
     
-    func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepModel) {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
@@ -61,6 +61,40 @@ final class MovieQuizViewController: UIViewController {
         alert?.requestAlertPresenter(model)
     }
     
+    func setAnimating(start: Bool) {
+        start ? activityIndicator.startAnimating() : activityIndicator.stopAnimating()
+    }
+    
+    func setBorderWidth(border: Bool) {
+        if border == true {
+            imageView.layer.borderWidth = 0
+        } else {
+            imageView.layer.borderWidth = 8
+        }
+    }
+    
+    func setBorderColor(color: Bool) {
+        imageView.layer.borderColor = color ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+    }
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        
+    }
+    
+    func showLoadingIndicator() {
+        
+    }
+    
+    func hideLoadingIndicator() {
+        
+    }
+    
+    func showNetworkError(message: String) {
+        
+    }
+    
+    func show(alertModel: AlertModel) {
+        alert?.requestAlertPresenter(alertModel)
+    }
 }
 
 

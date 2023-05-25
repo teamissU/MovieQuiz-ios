@@ -11,23 +11,9 @@ import XCTest
 class MoviesLoaderTests: XCTestCase {
     struct StubNetworkClient: NetworkRouting {
         func fetch(url: URL, handler: @escaping (Result<Data, MovieQuiz.MovieError>) -> Void) {
-            <#code#>
+            handler(emulateError ? .failure(.net(desc: "test")) : .success(expectedResponse))
         }
-        
-        
-        enum TestError: Error {
-        case test
-        }
-        
-        let emulateError: Bool 
-        
-        func fetch(url: URL, handler: @escaping (Result<Data, Error>) -> Void) {
-            if emulateError {
-                handler(.failure(TestError.test))
-            } else {
-                handler(.success(expectedResponse))
-            }
-        }
+        let emulateError: Bool
         
         private var expectedResponse: Data {
             """
@@ -75,8 +61,8 @@ class MoviesLoaderTests: XCTestCase {
             case .success(let movies):
                 XCTAssertEqual(movies.items.count, 2)
                 expectation.fulfill()
-            case .failure(_):
-                XCTFail("Unexpected failure")
+            case .failure(let error):
+                XCTFail(error.description)
             }
         }
         

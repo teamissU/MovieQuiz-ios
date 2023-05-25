@@ -10,7 +10,7 @@ import UIKit
 final class MovieQuizPresenter {
     let questionsAmount: Int = 10
     private var currentQuestionIndex: Int = 0
-    weak var viewController: MovieQuizViewController?
+    weak var viewController: MovieQuizViewControllerProtocol?
     var currentQuestion: QuizQuestion?
     var correctAnswers: Int = 0
     private var statisticService: StatisticService?
@@ -32,8 +32,8 @@ final class MovieQuizPresenter {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
-    func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
+    func convert(model: QuizQuestion) -> QuizStepModel {
+        return QuizStepModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
@@ -60,13 +60,13 @@ final class MovieQuizPresenter {
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
-            self?.viewController?.activityIndicator.stopAnimating()
+            self?.viewController?.setAnimating(start: false)
 
         }
     }
     
     func showNextQuestionOrResults() {
-        viewController?.imageView.layer.borderWidth = 0
+        viewController?.setBorderWidth(border: true)
         if self.isLastQuestion() {
             statisticService?.store(correct: correctAnswers, total: questionsAmount)
             guard let gamesCount = statisticService?.gamesCount else { return }
@@ -89,8 +89,8 @@ final class MovieQuizPresenter {
         if isCorrect {
             correctAnswers += 1
         }
-        viewController?.imageView.layer.borderWidth = 8
-        viewController?.imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        viewController?.setBorderWidth(border: false)
+        viewController?.setBorderColor(color: isCorrect)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                     guard let self = self else { return }
                     self.questionFactory = self.questionFactory
@@ -99,7 +99,7 @@ final class MovieQuizPresenter {
     }
     
     func requestNextQuestion () {
-        viewController?.activityIndicator.startAnimating()
+        viewController?.setAnimating(start: true)
         resetQuestionIndex()
         correctAnswers = 0
         questionFactory.requestNextQuestion()
@@ -123,7 +123,7 @@ extension MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func didFailToLoadData(with error: MovieError) {
-        viewController?.activityIndicator.stopAnimating()
+        viewController?.setAnimating(start: false)
         let model = AlertModel(
             textResult: error.description,
             title: "Ошибка",
@@ -131,6 +131,6 @@ extension MovieQuizPresenter: QuestionFactoryDelegate {
                 guard let self = self else { return }
                 self.requestNextQuestion()
             })
-        viewController?.alert?.requestAlertPresenter(model)
+        viewController?.show(alertModel: model)
     }
 }

@@ -17,7 +17,7 @@ class MovieQuizUITests: XCTestCase {
         app.launch()
         
         
-        continueAfterFailure = false
+        continueAfterFailure = true
     }
     override func tearDownWithError() throws {
         try super.tearDownWithError()
